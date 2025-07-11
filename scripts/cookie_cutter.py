@@ -136,7 +136,7 @@ def get_config_file_path() -> Path | None:
 def generate_configurations(config_file_path: Path) -> list[Config]:
     parsed_configurations = yaml.safe_load(open(config_file_path))
     configurations = []
-    for configuration in parsed_configurations.values():
+    for configuration in parsed_configurations["default_windows"]:
         pane_configuration = []
         if pane_configs := configuration.get("panes"):
             pane_configuration = [
