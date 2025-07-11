@@ -122,16 +122,18 @@ def split_window(index: int, session: str, direction: SplitDirection) -> None:
     subprocess.run(["tmux", "split-window", "-t", f"{session}:{index}", split_flag])
 
 
-def get_config_file_path() -> str:
-    if Path(FILE_NAME).is_file():
-        return FILE_NAME
+def get_config_file_path() -> Path | None:
+    file_path = Path(FILE_NAME)
+    if file_path.is_file():
+        return file_path
     else:
         default_path = Path.joinpath(CONFIG_PATH, FILE_NAME)
         if Path(default_path).is_file():
             return default_path
+    return None
 
 
-def generate_configurations(config_file_path: str) -> list[Config]:
+def generate_configurations(config_file_path: Path) -> list[Config]:
     parsed_configurations = yaml.safe_load(open(config_file_path))
     configurations = []
     for configuration in parsed_configurations.values():
@@ -224,6 +226,10 @@ def run_configurations(
 
 def main():
     config_file_path = get_config_file_path()
+
+    if not config_file_path:
+        return
+
     session_name = get_tmux_session_name()
     configurations = generate_configurations(config_file_path=config_file_path)
     run_configurations(
