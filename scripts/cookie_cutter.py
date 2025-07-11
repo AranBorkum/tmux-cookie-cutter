@@ -5,7 +5,7 @@ from pathlib import Path
 
 import yaml
 
-FILE_NAME = ".cookie-cutter.yaml"
+FILE_NAME = ".tmux-cookie-cutter.yaml"
 CONFIG_PATH = Path.joinpath(Path.home(), ".config")
 
 

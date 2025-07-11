@@ -24,7 +24,7 @@ $ git clone https://github.com/AranBorkum/tmux-cookie-cutter ~/clone/path
 Add this line to the bottom of `.tmux.conf`:
 
 ```shell
-run-shell ~/clone/path/cpu.tmux
+run-shell ~/clone/path/cookie-cutter.tmux
 ```
 
 Reload TMUX environment:
@@ -35,7 +35,7 @@ $ tmux source-file ~/.tmux.conf
 ```
 
 ## Usage
-Create a `.cookie-cutter.yaml` file in your `$HOME/.config/` directory _or_ a bespoke one in the root of your project. Configure this with the following values:
+Create a `.tmux-cookie-cutter.yaml` file in your `$HOME/.config/` directory _or_ a bespoke one in the root of your project. Configure this with the following values:
 
 ```yaml
 <first window>:
