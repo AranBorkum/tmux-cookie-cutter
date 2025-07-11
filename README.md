@@ -59,3 +59,15 @@ Create a `.cookie-cutter.yaml` file in your `$HOME/.config/` directory _or_ a be
             split_direction: "horizontal"
             command: ./manage runserver
 ```
+
+Optionally, you can set the python interpreter to use, it defaults to python3:
+
+```shell
+set-option -g @cookie_cutter_python "python3"
+```
+
+Be sure it has PyYAML available, you can use `uv` to run it with the `pyyaml` package:
+
+```shell
+set-option -g @cookie_cutter_python "uv run --with pyyaml"
+```
