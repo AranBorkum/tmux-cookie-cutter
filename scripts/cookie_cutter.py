@@ -1,4 +1,5 @@
 import dataclasses
+import enum
 import subprocess
 from pathlib import Path
 
@@ -8,12 +9,26 @@ FILE_NAME = ".cookie-cutter.yaml"
 CONFIG_PATH = Path.joinpath(Path.home(), ".config")
 
 
+class SplitDirection(enum.StrEnum):
+    horizontal = "horizontal"
+    vertical = "vertical"
+
+
+@dataclasses.dataclass(frozen=True)
+class PaneConfig:
+    command: str | None
+    split_direction: SplitDirection
+    envvars: list[str] | None
+    setup_command: str | None
+
+
 @dataclasses.dataclass(frozen=True)
 class Config:
     name: str
     command: str | None
     envvars: list[str] | None
     setup_command: str | None
+    panes: list[PaneConfig]
 
 
 def get_tmux_session_name() -> str:
@@ -25,7 +40,6 @@ def get_tmux_session_name() -> str:
 
 
 def create_tmux_window(name: str, session: str) -> None:
-    print(session)
     subprocess.run(
         [
             "tmux",
@@ -39,7 +53,6 @@ def create_tmux_window(name: str, session: str) -> None:
 
 
 def rename_tmux_window(name: str, index: int, session: str) -> None:
-    print(session)
     subprocess.run(["tmux", "rename-window", "-t", f"{session}:{index}", name])
 
 
@@ -104,6 +117,11 @@ def clear_terminal(index: int, session: str) -> None:
     )
 
 
+def split_window(index: int, session: str, direction: SplitDirection) -> None:
+    split_flag = "-v" if direction == SplitDirection.horizontal else "-h"
+    subprocess.run(["tmux", "split-window", "-t", f"{session}:{index}", split_flag])
+
+
 def get_config_file_path() -> str:
     if Path(FILE_NAME).is_file():
         return FILE_NAME
@@ -115,15 +133,57 @@ def get_config_file_path() -> str:
 
 def generate_configurations(config_file_path: str) -> list[Config]:
     parsed_configurations = yaml.safe_load(open(config_file_path))
-    return [
-        Config(
-            name=configuration["name"],
-            command=configuration.get("command"),
-            envvars=configuration.get("envvars"),
-            setup_command=configuration.get("setup_command"),
+    configurations = []
+    for configuration in parsed_configurations.values():
+        pane_configuration = []
+        if pane_configs := configuration.get("panes"):
+            pane_configuration = [
+                PaneConfig(
+                    command=pane_config.get("command"),
+                    split_direction=SplitDirection(pane_config["split_direction"]),
+                    envvars=configuration.get("envvars"),
+                    setup_command=configuration.get("setup_command"),
+                )
+                for pane_config in pane_configs.values()
+            ]
+
+        configurations.append(
+            Config(
+                name=configuration["name"],
+                command=configuration.get("command"),
+                envvars=configuration.get("envvars"),
+                setup_command=configuration.get("setup_command"),
+                panes=pane_configuration,
+            )
         )
-        for configuration in parsed_configurations.values()
-    ]
+    return configurations
+
+
+def run_pane_configuration(
+    pane_configuration: PaneConfig, index: int, session: str
+) -> None:
+    split_window(
+        index=index,
+        session=session,
+        direction=pane_configuration.split_direction,
+    )
+    set_environment_variables(
+        envvars=pane_configuration.envvars,
+        index=index,
+        session=session,
+    )
+    run_setup_command(
+        command=pane_configuration.setup_command,
+        index=index,
+        session=session,
+    )
+    run_command(
+        command=pane_configuration.command,
+        index=index,
+        session=session,
+    )
+
+    clear_terminal(index=index, session=session)
 
 
 def run_configurations(
@@ -153,6 +213,13 @@ def run_configurations(
             index=index + 1,
             session=session_name,
         )
+
+        for pane in configuration.panes:
+            run_pane_configuration(
+                pane_configuration=pane, index=index + 1, session=session_name
+            )
+
+        clear_terminal(index=index + 1, session=session_name)
 
 
 def main():
