@@ -52,4 +52,10 @@ Create a `.cookie-cutter.yaml` file in your `$HOME/.config/` directory _or_ a be
         - VARIABLE_1=...
         - VARIABLE_2=...
     setup_command: "source .venv/bin/activate" 
+    panes:
+        alpha:
+            split_direction: "vertical"
+        beta:
+            split_direction: "horizontal"
+            command: ./manage runserver
 ```
