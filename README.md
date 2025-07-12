@@ -52,9 +52,11 @@ default_windows:
     setup_command: "source .venv/bin/activate"
     command:
     panes:
-        - split_direction: "vertical"
-        - split_direction: "horizontal"
-          command: ./manage runserver
+        alpha:
+            split_direction: "vertical"
+        beta:
+            split_direction: "horizontal"
+            command: ./manage runserver
 ```
 
 Optionally, you can set the python interpreter to use, it defaults to python3:

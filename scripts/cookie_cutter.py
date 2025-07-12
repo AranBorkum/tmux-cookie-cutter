@@ -104,6 +104,19 @@ def run_command(command: str | None, index: int, session: str) -> None:
     )
 
 
+def clear_terminal(index: int, session: str) -> None:
+    subprocess.run(
+        [
+            "tmux",
+            "send-keys",
+            "-t",
+            f"{session}:{index}",
+            "clear",
+            "C-m",
+        ]
+    )
+
+
 def split_window(index: int, session: str, direction: SplitDirection) -> None:
     split_flag = "-v" if direction == SplitDirection.horizontal else "-h"
     subprocess.run(["tmux", "split-window", "-t", f"{session}:{index}", split_flag])
@@ -133,7 +146,7 @@ def generate_configurations(config_file_path: Path) -> list[Config]:
                     envvars=configuration.get("envvars"),
                     setup_command=configuration.get("setup_command"),
                 )
-                for pane_config in pane_configs
+                for pane_config in pane_configs.values()
             ]
 
         configurations.append(
@@ -172,6 +185,8 @@ def run_pane_configuration(
         session=session,
     )
 
+    clear_terminal(index=index, session=session)
+
 
 def run_configurations(
     configurations: list[Config],
@@ -205,6 +220,8 @@ def run_configurations(
             run_pane_configuration(
                 pane_configuration=pane, index=index + 1, session=session_name
             )
+
+        clear_terminal(index=index + 1, session=session_name)
 
 
 def main():
