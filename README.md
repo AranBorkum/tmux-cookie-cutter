@@ -24,7 +24,7 @@ $ git clone https://github.com/AranBorkum/tmux-cookie-cutter ~/clone/path
 Add this line to the bottom of `.tmux.conf`:
 
 ```shell
-run-shell ~/clone/path/cpu.tmux
+run-shell ~/clone/path/cookie-cutter.tmux
 ```
 
 Reload TMUX environment:
@@ -35,23 +35,22 @@ $ tmux source-file ~/.tmux.conf
 ```
 
 ## Usage
-Create a `.cookie-cutter.yaml` file in your `$HOME/.config/` directory _or_ a bespoke one in the root of your project. Configure this with the following values:
+Create a `.tmux-cookie-cutter.yaml` file in your `$HOME/.config/` directory _or_ a bespoke one in the root of your project. Configure this with the following values:
 
 ```yaml
-<first window>:
-    name: "neovim"
+default_windows:
+  - name: "neovim"
+    envvars:
+        - VARIABLE_1=...
+        - VARIABLE_2=...
+    setup_command: "source .venv/bin/activate"
     command: "nvim"
+  - name: "terminal"
     envvars:
         - VARIABLE_1=...
         - VARIABLE_2=...
-    setup_command: "source .venv/bin/activate" 
-<second window>:
-    name: "terminal"
+    setup_command: "source .venv/bin/activate"
     command:
-    envvars:
-        - VARIABLE_1=...
-        - VARIABLE_2=...
-    setup_command: "source .venv/bin/activate" 
     panes:
         alpha:
             split_direction: "vertical"
