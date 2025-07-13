@@ -36,6 +36,7 @@ def generate_configurations(config_file_path: Path) -> list[data_objects.Config]
                     ),
                     envvars=configuration.get("envvars"),
                     setup_command=configuration.get("setup_command"),
+                    size=pane_config.get("size"),
                 )
                 for pane_config in pane_configs
             ]
@@ -53,28 +54,49 @@ def generate_configurations(config_file_path: Path) -> list[data_objects.Config]
 
 
 def run_pane_configuration(
-    pane_configuration: data_objects.PaneConfig, index: int, session: str
+    pane_configuration: data_objects.PaneConfig,
+    window_index: int,
+    pane_index: int,
+    session: str,
 ) -> None:
     tmux_commands.split_window(
-        index=index,
+        index=window_index,
         session=session,
         direction=pane_configuration.split_direction,
     )
     tmux_commands.set_environment_variables(
         envvars=pane_configuration.envvars,
-        index=index,
+        index=window_index,
         session=session,
     )
     tmux_commands.run_setup_command(
         command=pane_configuration.setup_command,
-        index=index,
+        index=window_index,
         session=session,
     )
     tmux_commands.run_command(
         command=pane_configuration.command,
-        index=index,
+        index=window_index,
         session=session,
     )
+    if not pane_configuration.size:
+        return
+
+    match pane_configuration.split_direction:
+        case constants.SplitDirection.vertical:
+            tmux_commands.resize_pane_horizontally(
+                window_index=window_index,
+                pane_index=pane_index,
+                session=session,
+                size=pane_configuration.size,
+            )
+        case constants.SplitDirection.horizontal:
+            tmux_commands.resize_pane_vertically(
+                window_index=window_index,
+                pane_index=pane_index,
+                session=session,
+                size=pane_configuration.size,
+            )
 
 
 def run_configurations(
@@ -107,9 +129,12 @@ def run_configurations(
             session=session_name,
         )
 
-        for pane in configuration.panes:
+        for pane_index, pane in enumerate(configuration.panes):
             run_pane_configuration(
-                pane_configuration=pane, index=index + 1, session=session_name
+                pane_configuration=pane,
+                window_index=index + 1,
+                pane_index=pane_index + 2,
+                session=session_name,
             )
 
     tmux_commands.select_window(window_index=2, session=session_name)

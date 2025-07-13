@@ -10,6 +10,7 @@ class PaneConfig:
     split_direction: constants.SplitDirection
     envvars: list[str] | None
     setup_command: str | None
+    size: int | None
 
 
 @dataclasses.dataclass(frozen=True)

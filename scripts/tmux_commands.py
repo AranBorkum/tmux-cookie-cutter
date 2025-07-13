@@ -103,3 +103,67 @@ def select_window(window_index: int, session: str) -> None:
             f"{session}:{window_index}",
         ]
     )
+
+
+def get_window_width(index: int, session: str) -> int:
+    width = subprocess.run(
+        [
+            "tmux",
+            "display",
+            "-t",
+            f"{session}:{index}",
+            "-p",
+            "#{window_width}",
+        ],
+        capture_output=True,
+        text=True,
+    ).stdout
+    return int(width)
+
+
+def get_window_height(index: int, session: str) -> int:
+    width = subprocess.run(
+        [
+            "tmux",
+            "display",
+            "-t",
+            f"{session}:{index}",
+            "-p",
+            "#{window_height}",
+        ],
+        capture_output=True,
+        text=True,
+    ).stdout
+    return int(width)
+
+
+def resize_pane_horizontally(
+    window_index: int, pane_index: int, session: str, size: int
+) -> None:
+    target_width = get_window_width(index=window_index, session=session) * size // 100
+    subprocess.run(
+        [
+            "tmux",
+            "resize-pane",
+            "-t",
+            f"{session}:{window_index}.{pane_index}",
+            "-x",
+            f"{target_width}",
+        ]
+    )
+
+
+def resize_pane_vertically(
+    window_index: int, pane_index: int, session: str, size: int
+) -> None:
+    target_height = get_window_height(index=window_index, session=session) * size // 100
+    subprocess.run(
+        [
+            "tmux",
+            "resize-pane",
+            "-t",
+            f"{session}:{window_index}.{pane_index}",
+            "-y",
+            f"{target_height}",
+        ]
+    )

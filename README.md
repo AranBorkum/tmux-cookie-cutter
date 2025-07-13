@@ -53,8 +53,10 @@ default_windows:
     command:
     panes:
         - split_direction: "vertical"
+          size: 25  # percentage width of a vertically split pane
         - split_direction: "horizontal"
           command: ./manage runserver
+          size: 40  # percentage width of a horizontally split pane
 ```
 
 Optionally, you can set the python interpreter to use, it defaults to python3:
