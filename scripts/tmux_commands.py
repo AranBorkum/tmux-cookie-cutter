@@ -92,3 +92,14 @@ def split_window(
             split_flag,
         ]
     )
+
+
+def select_window(window_index: int, session: str) -> None:
+    subprocess.run(
+        [
+            "tmux",
+            "select-window",
+            "-t",
+            f"{session}:{window_index}",
+        ]
+    )

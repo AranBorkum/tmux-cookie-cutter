@@ -112,6 +112,9 @@ def run_configurations(
                 pane_configuration=pane, index=index + 1, session=session_name
             )
 
+    tmux_commands.select_window(window_index=2, session=session_name)
+    tmux_commands.select_window(window_index=1, session=session_name)
+
 
 def main():
     config_file_path = get_config_file_path()
