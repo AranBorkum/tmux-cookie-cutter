@@ -167,3 +167,31 @@ def resize_pane_vertically(
             f"{target_height}",
         ]
     )
+
+
+def get_window_base_index() -> int:
+    window_base_index = subprocess.run(
+        [
+            "tmux",
+            "show-option",
+            "-g",
+            "base-index",
+        ],
+        capture_output=True,
+        text=True,
+    ).stdout
+    return int(window_base_index.split(" ")[-1])
+
+
+def get_pane_base_index() -> int:
+    window_base_index = subprocess.run(
+        [
+            "tmux",
+            "show-option",
+            "-g",
+            "pane-base-index",
+        ],
+        capture_output=True,
+        text=True,
+    ).stdout
+    return int(window_base_index.split(" ")[-1])
