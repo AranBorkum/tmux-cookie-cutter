@@ -102,11 +102,15 @@ def run_pane_configuration(
 def run_configurations(
     configurations: list[data_objects.Config],
     session_name: str,
+    window_base_index: int,
+    pane_base_index: int,
 ) -> None:
     for index, configuration in enumerate(configurations):
         if index == 0:
             tmux_commands.rename_tmux_window(
-                name=configuration.name, session=session_name, index=index + 1
+                name=configuration.name,
+                session=session_name,
+                index=index + window_base_index,
             )
         else:
             tmux_commands.create_tmux_window(
@@ -115,34 +119,42 @@ def run_configurations(
 
         tmux_commands.set_environment_variables(
             envvars=configuration.envvars,
-            index=index + 1,
+            index=index + window_base_index,
             session=session_name,
         )
         tmux_commands.run_setup_command(
             command=configuration.setup_command,
-            index=index + 1,
+            index=index + window_base_index,
             session=session_name,
         )
         tmux_commands.run_command(
             command=configuration.command,
-            index=index + 1,
+            index=index + window_base_index,
             session=session_name,
         )
 
         for pane_index, pane in enumerate(configuration.panes):
             run_pane_configuration(
                 pane_configuration=pane,
-                window_index=index + 1,
-                pane_index=pane_index + 2,
+                window_index=index + window_base_index,
+                pane_index=pane_index + pane_base_index + 1,
                 session=session_name,
             )
 
-    tmux_commands.select_window(window_index=2, session=session_name)
-    tmux_commands.select_window(window_index=1, session=session_name)
+    tmux_commands.select_window(
+        window_index=window_base_index + 1,
+        session=session_name,
+    )
+    tmux_commands.select_window(
+        window_index=window_base_index,
+        session=session_name,
+    )
 
 
 def main():
     config_file_path = get_config_file_path()
+    window_base_index = tmux_commands.get_window_base_index()
+    pane_base_index = tmux_commands.get_pane_base_index()
 
     if not config_file_path:
         return
@@ -152,6 +164,8 @@ def main():
     run_configurations(
         configurations=configurations,
         session_name=session_name,
+        window_base_index=window_base_index,
+        pane_base_index=pane_base_index,
     )
 
 
