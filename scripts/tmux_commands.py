@@ -197,3 +197,16 @@ def get_pane_base_index() -> int:
         text=True,
     ).stdout
     return int(window_base_index.split(" ")[-1])
+
+
+def show_warning_message() -> None:
+    subprocess.run(
+        [
+            "tmux",
+            "command-prompt",
+            "-I",
+            "",
+            "-p",
+            "PyYAML is required to run tmux-cookie-cutter [Esc]",
+        ]
+    )

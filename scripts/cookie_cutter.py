@@ -1,11 +1,11 @@
 import importlib
+import typing
 from pathlib import Path
-
-import yaml
 
 constants = importlib.import_module("constants")
 data_objects = importlib.import_module("data_objects")
 tmux_commands = importlib.import_module("tmux_commands")
+
 
 FILE_NAME = ".tmux-cookie-cutter.yaml"
 CONFIG_PATH = Path.joinpath(Path.home(), ".config")
@@ -22,10 +22,18 @@ def get_config_file_path() -> Path | None:
     return None
 
 
-def generate_configurations(config_file_path: Path) -> list[data_objects.Config]:
-    parsed_configurations = yaml.safe_load(open(config_file_path))
+def parse_config_file(config_file_path: Path) -> dict[str, typing.Any] | None:
+    try:
+        import yaml
+
+        return yaml.safe_load(open(config_file_path))
+    except ModuleNotFoundError:
+        tmux_commands.show_warning_message()
+
+
+def generate_configurations(parsed_configuration: dict[str, typing.Any]) -> list[data_objects.Config]:
     configurations = []
-    for configuration in parsed_configurations["default_windows"]:
+    for configuration in parsed_configuration["default_windows"]:
         pane_configuration = []
         if pane_configs := configuration.get("panes"):
             pane_configuration = [
@@ -155,12 +163,17 @@ def main():
     config_file_path = get_config_file_path()
     window_base_index = tmux_commands.get_window_base_index()
     pane_base_index = tmux_commands.get_pane_base_index()
+    session_name = tmux_commands.get_tmux_session_name()
 
     if not config_file_path:
         return
 
-    session_name = tmux_commands.get_tmux_session_name()
-    configurations = generate_configurations(config_file_path=config_file_path)
+    parsed_configuration = parse_config_file(config_file_path=config_file_path)
+
+    if parsed_configuration is None:
+        return
+
+    configurations = generate_configurations(parsed_configuration=parsed_configuration)
     run_configurations(
         configurations=configurations,
         session_name=session_name,
