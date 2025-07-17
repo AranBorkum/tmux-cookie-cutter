@@ -1,11 +1,11 @@
 import importlib
-import typing
 from pathlib import Path
+
+import yaml
 
 constants = importlib.import_module("constants")
 data_objects = importlib.import_module("data_objects")
 tmux_commands = importlib.import_module("tmux_commands")
-
 
 FILE_NAME = ".tmux-cookie-cutter.yaml"
 CONFIG_PATH = Path.joinpath(Path.home(), ".config")
@@ -22,51 +22,35 @@ def get_config_file_path() -> Path | None:
     return None
 
 
-def parse_config_file(config_file_path: Path) -> dict[str, typing.Any] | None:
-    try:
-        import yaml
+def generate_configurations(config_file_path: Path) -> list[data_objects.Config]:
+    parsed_configurations = yaml.safe_load(open(config_file_path))
+    configurations = []
+    for configuration in parsed_configurations["default_windows"]:
+        pane_configuration = []
+        if pane_configs := configuration.get("panes"):
+            pane_configuration = [
+                data_objects.PaneConfig(
+                    command=pane_config.get("command"),
+                    split_direction=constants.SplitDirection(
+                        pane_config["split_direction"]
+                    ),
+                    envvars=configuration.get("envvars"),
+                    setup_command=configuration.get("setup_command"),
+                    size=pane_config.get("size"),
+                )
+                for pane_config in pane_configs
+            ]
 
-        return yaml.safe_load(open(config_file_path))
-    except ModuleNotFoundError:
-        tmux_commands.show_warning_message()
-        return None
-
-
-def generate_pane_configurations(
-    configuration: dict[str, typing.Any],
-) -> list[data_objects.PaneConfig]:
-    pane_configs = configuration.get("panes")
-
-    if pane_configs is None:
-        return []
-
-    return [
-        data_objects.PaneConfig(
-            command=pane_config.get("command"),
-            split_direction=constants.SplitDirection(pane_config["split_direction"]),
-            envvars=configuration.get("envvars"),
-            setup_command=configuration.get("setup_command"),
-            size=pane_config.get("size"),
+        configurations.append(
+            data_objects.Config(
+                name=configuration["name"],
+                command=configuration.get("command"),
+                envvars=configuration.get("envvars"),
+                setup_command=configuration.get("setup_command"),
+                panes=pane_configuration,
+            )
         )
-        for pane_config in pane_configs
-    ]
-
-
-def generate_configurations(
-    parsed_configuration: dict[str, typing.Any],
-) -> list[data_objects.Config]:
-    return [
-        data_objects.Config(
-            name=configuration["name"],
-            command=configuration.get("command"),
-            envvars=configuration.get("envvars"),
-            setup_command=configuration.get("setup_command"),
-            panes=generate_pane_configurations(
-                configuration=configuration,
-            ),
-        )
-        for configuration in parsed_configuration["default_windows"]
-    ]
+    return configurations
 
 
 def run_pane_configuration(
@@ -167,21 +151,16 @@ def run_configurations(
     )
 
 
-def main() -> None:
+def main():
     config_file_path = get_config_file_path()
     window_base_index = tmux_commands.get_window_base_index()
     pane_base_index = tmux_commands.get_pane_base_index()
-    session_name = tmux_commands.get_tmux_session_name()
 
     if not config_file_path:
         return
 
-    parsed_configuration = parse_config_file(config_file_path=config_file_path)
-
-    if parsed_configuration is None:
-        return
-
-    configurations = generate_configurations(parsed_configuration=parsed_configuration)
+    session_name = tmux_commands.get_tmux_session_name()
+    configurations = generate_configurations(config_file_path=config_file_path)
     run_configurations(
         configurations=configurations,
         session_name=session_name,

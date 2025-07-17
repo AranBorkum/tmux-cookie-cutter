@@ -5,13 +5,11 @@ constants = importlib.import_module("constants")
 
 
 def get_tmux_session_name() -> str:
-    result = subprocess.run(
-        ["tmux", "display-message", "-p", "#S"],
+    return subprocess.run(
+        ["tmux", "display-message", "#{session_name}"],
         capture_output=True,
         text=True,
-        check=True,
-    )
-    return result.stdout.strip()
+    ).stdout
 
 
 def create_tmux_window(name: str, session: str) -> None:
@@ -197,16 +195,3 @@ def get_pane_base_index() -> int:
         text=True,
     ).stdout
     return int(window_base_index.split(" ")[-1])
-
-
-def show_warning_message() -> None:
-    subprocess.run(
-        [
-            "tmux",
-            "command-prompt",
-            "-I",
-            "",
-            "-p",
-            "PyYAML is required to run tmux-cookie-cutter [Esc]",
-        ]
-    )
