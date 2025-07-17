@@ -5,11 +5,13 @@ constants = importlib.import_module("constants")
 
 
 def get_tmux_session_name() -> str:
-    return subprocess.run(
-        ["tmux", "display-message", "#{session_name}"],
+    result = subprocess.run(
+        ["tmux", "display-message", "-p", "#S"],
         capture_output=True,
         text=True,
-    ).stdout
+        check=True,
+    )
+    return result.stdout.strip()
 
 
 def create_tmux_window(name: str, session: str) -> None:
