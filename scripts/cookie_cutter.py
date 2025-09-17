@@ -43,7 +43,8 @@ def generate_pane_configurations(
     return [
         data_objects.PaneConfig(
             command=pane_config.get("command"),
-            split_direction=constants.SplitDirection(pane_config["split_direction"]),
+            split_direction=constants.SplitDirection(
+                pane_config["split_direction"]),
             envvars=configuration.get("envvars"),
             setup_command=configuration.get("setup_command"),
             size=pane_config.get("size"),
@@ -143,6 +144,7 @@ def run_configurations(
             index=index + window_base_index,
             session=session_name,
         )
+        tmux_commands.clear_window()
         tmux_commands.run_command(
             command=configuration.command,
             index=index + window_base_index,
@@ -181,7 +183,8 @@ def main() -> None:
     if parsed_configuration is None:
         return
 
-    configurations = generate_configurations(parsed_configuration=parsed_configuration)
+    configurations = generate_configurations(
+        parsed_configuration=parsed_configuration)
     run_configurations(
         configurations=configurations,
         session_name=session_name,

@@ -1,4 +1,5 @@
 import importlib
+import os
 import subprocess
 
 constants = importlib.import_module("constants")
@@ -210,3 +211,7 @@ def show_warning_message() -> None:
             "PyYAML is required to run tmux-cookie-cutter [Esc]",
         ]
     )
+
+
+def clear_window() -> None:
+    os.system("clear")
