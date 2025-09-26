@@ -72,7 +72,12 @@ def generate_configurations(
 def parse_global_values(
     parsed_configuration: dict[str, typing.Any],
 ) -> data_objects.GlobalValues:
-    configuration = parsed_configuration["globals"]
+    configuration = parsed_configuration.get("globals")
+    if not configuration:
+        return data_objects.GlobalValues(
+            envvars=None,
+            setup_command=None,
+        )
     return data_objects.GlobalValues(
         envvars=configuration.get("envvars"),
         setup_command=configuration.get("setup_command"),
