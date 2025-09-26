@@ -69,8 +69,19 @@ def generate_configurations(
     ]
 
 
+def parse_global_values(
+    parsed_configuration: dict[str, typing.Any],
+) -> data_objects.GlobalValues:
+    configuration = parsed_configuration["globals"]
+    return data_objects.GlobalValues(
+        envvars=configuration.get("envvars"),
+        setup_command=configuration.get("setup_command"),
+    )
+
+
 def run_pane_configuration(
     pane_configuration: data_objects.PaneConfig,
+    global_configuration: data_objects.GlobalValues,
     window_index: int,
     pane_index: int,
     session: str,
@@ -79,6 +90,16 @@ def run_pane_configuration(
         index=window_index,
         session=session,
         direction=pane_configuration.split_direction,
+    )
+    tmux_commands.set_environment_variables(
+        envvars=global_configuration.envvars,
+        index=window_index,
+        session=session,
+    )
+    tmux_commands.run_setup_command(
+        command=global_configuration.setup_command,
+        index=window_index,
+        session=session,
     )
     tmux_commands.set_environment_variables(
         envvars=pane_configuration.envvars,
@@ -117,6 +138,7 @@ def run_pane_configuration(
 
 def run_configurations(
     configurations: list[data_objects.Config],
+    global_configuration: data_objects.GlobalValues,
     session_name: str,
     window_base_index: int,
     pane_base_index: int,
@@ -133,6 +155,16 @@ def run_configurations(
                 name=configuration.name, session=session_name
             )
 
+        tmux_commands.set_environment_variables(
+            envvars=global_configuration.envvars,
+            index=index + window_base_index,
+            session=session_name,
+        )
+        tmux_commands.run_setup_command(
+            command=global_configuration.setup_command,
+            index=index + window_base_index,
+            session=session_name,
+        )
         tmux_commands.set_environment_variables(
             envvars=configuration.envvars,
             index=index + window_base_index,
@@ -152,6 +184,7 @@ def run_configurations(
         for pane_index, pane in enumerate(configuration.panes):
             run_pane_configuration(
                 pane_configuration=pane,
+                global_configuration=global_configuration,
                 window_index=index + window_base_index,
                 pane_index=pane_index + pane_base_index + 1,
                 session=session_name,
@@ -182,8 +215,10 @@ def main() -> None:
         return
 
     configurations = generate_configurations(parsed_configuration=parsed_configuration)
+    globals = parse_global_values(parsed_configuration=parsed_configuration)
     run_configurations(
         configurations=configurations,
+        global_configuration=globals,
         session_name=session_name,
         window_base_index=window_base_index,
         pane_base_index=pane_base_index,
