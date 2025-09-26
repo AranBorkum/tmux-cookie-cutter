@@ -20,3 +20,9 @@ class Config:
     envvars: list[str] | None
     setup_command: str | None
     panes: list[PaneConfig]
+
+
+@dataclasses.dataclass(frozen=True)
+class GlobalValues:
+    envvars: list[str] | None
+    setup_command: str | None
