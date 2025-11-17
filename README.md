@@ -35,43 +35,37 @@ $ tmux source-file ~/.tmux.conf
 ```
 
 ## Usage
-Create a `.tmux-cookie-cutter.yaml` file in your `$HOME/.config/` directory _or_ a bespoke one in the root of your project. Configure this with the following values:
+Create a `.tmux-cookie-cutter.toml` file in your `$HOME/.config/` directory _or_ a bespoke one in the root of your project. Configure this with the following values:
 
-```yaml
-globals:
-    envvars:
-        - VARIABLE_1=...
-        - VARIABLE_2=...
-    setup_command: "neofetch"
+```toml
+[shared]
+setup_command = "neofetch"
+envvars = [
+    { VARIABLE_1 = ... },
+    { VARIABLE_2 = ... },
+]
 
-default_windows:
-  - name: "neovim"
-    envvars:
-        - VARIABLE_1=...
-        - VARIABLE_2=...
-    setup_command: "source .venv/bin/activate"
-    command: "nvim"
-  - name: "terminal"
-    envvars:
-        - VARIABLE_1=...
-        - VARIABLE_2=...
-    setup_command: "source .venv/bin/activate"
-    command:
-    panes:
-        - split_direction: "vertical"
-          size: 25  # percentage width of a vertically split pane
-        - split_direction: "horizontal"
-          command: ./manage runserver
-          size: 40  # percentage width of a horizontally split pane
-```
-Globals will be applied to every tmux window, removing the need for repetition. Optionally, you can set the python interpreter to use, it defaults to python3:
+[neovim]
+command = "nvim"
+setup_command = "source .venv/bin/activate"
+envvars = [
+    { VARIABLE_3 = ... },
+    { VARIABLE_4 = ... },
+]
 
-```shell
-set-option -g @cookie_cutter_python "python3"
+[terminal]
+name = "terminal"
+setup_command = "source .venv/bin/activate"
+envvars = [
+    { VARIABLE_4 = ... },
+    { VARIABLE_5 = ... },
+]
+panes = [
+    { split_direction = "vertical", size = 25 },
+    { split_direction = "horizontal", size = 40 },
+]
 ```
 
-Be sure it has PyYAML available, you can use `uv` to run it with the `pyyaml` package:
+The name field is optional. By default the name of the window will match the value in the square brackets. If you specify a name value this will override this value, allowing you to have multiple windows with the same name.
 
-```shell
-set-option -g @cookie_cutter_python "uv run --with pyyaml"
-```
+Shared values will be applied to every tmux window, removing the need for repetition. You can define `envvars` and `setup_command` only as shared values.
