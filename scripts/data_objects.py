@@ -23,6 +23,6 @@ class Config:
 
 
 @dataclasses.dataclass(frozen=True)
-class GlobalValues:
-    envvars: list[str] | None
+class SharedValues:
+    envvars: dict[str, str] | None
     setup_command: str | None

@@ -32,18 +32,18 @@ def rename_tmux_window(name: str, index: int, session: str) -> None:
 
 
 def set_environment_variables(
-    envvars: list[str] | None, index: int, session: str
+    envvars: dict[str, str] | None, index: int, session: str
 ) -> None:
     if not envvars:
         return
-    for envvar in envvars:
+    for key, value in envvars.items():
         subprocess.run(
             [
                 "tmux",
                 "send-keys",
                 "-t",
                 f"{session}:{index}",
-                f"export {envvar}",
+                f"export {key}={value}",
                 "C-m",
             ]
         )
@@ -197,16 +197,3 @@ def get_pane_base_index() -> int:
         text=True,
     ).stdout
     return int(window_base_index.split(" ")[-1])
-
-
-def show_warning_message() -> None:
-    subprocess.run(
-        [
-            "tmux",
-            "command-prompt",
-            "-I",
-            "",
-            "-p",
-            "PyYAML is required to run tmux-cookie-cutter [Esc]",
-        ]
-    )
