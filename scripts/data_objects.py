@@ -26,3 +26,9 @@ class Config:
 class SharedValues:
     envvars: dict[str, str] | None
     setup_command: str | None
+
+
+@dataclasses.dataclass(frozen=True)
+class Settings:
+    window_base_index: int | None
+    pane_base_index: int | None

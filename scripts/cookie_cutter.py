@@ -10,6 +10,7 @@ tmux_commands = importlib.import_module("tmux_commands")
 
 FILE_NAME = ".tmux-cookie-cutter.toml"
 CONFIG_PATH = Path.joinpath(Path.home(), ".config")
+PROTECTED_NAMES = {"settings", "shared"}
 
 
 def get_config_file_path() -> Path | None:
@@ -62,7 +63,7 @@ def generate_configurations(
             ),
         )
         for name, configuration in parsed_configuration.items()
-        if name != "shared"
+        if name not in PROTECTED_NAMES
     ]
 
 
@@ -83,6 +84,22 @@ def parse_shared_values(
     return data_objects.SharedValues(
         envvars=envvars,
         setup_command=configuration.get("setup_command"),
+    )
+
+
+def parse_settings_values(
+    parsed_configuration: dict[str, typing.Any],
+) -> data_objects.Settings:
+    configuration = parsed_configuration.get("settings")
+    if not configuration:
+        return data_objects.Settings(
+            window_base_index=None,
+            pane_base_index=None,
+        )
+
+    return data_objects.Settings(
+        window_base_index=configuration.get("window_base_index"),
+        pane_base_index=configuration.get("pane_base_index"),
     )
 
 
@@ -223,12 +240,14 @@ def main() -> None:
 
     configurations = generate_configurations(parsed_configuration=parsed_configuration)
     shared_values = parse_shared_values(parsed_configuration=parsed_configuration)
+    settings = parse_settings_values(parsed_configuration=parsed_configuration)
+    print(settings)
     run_configurations(
         configurations=configurations,
         shared_configuration=shared_values,
         session_name=session_name,
-        window_base_index=window_base_index,
-        pane_base_index=pane_base_index,
+        window_base_index=settings.window_base_index or window_base_index,
+        pane_base_index=settings.pane_base_index or pane_base_index,
     )
 
 
