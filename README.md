@@ -38,7 +38,7 @@ $ tmux source-file ~/.tmux.conf
 Create a `.tmux-cookie-cutter.yaml` file in your `$HOME/.config/` directory _or_ a bespoke one in the root of your project. Configure this with the following values:
 
 ```yaml
-globals:
+shared:
     envvars:
         - VARIABLE_1=...
         - VARIABLE_2=...
@@ -64,7 +64,7 @@ default_windows:
           command: ./manage runserver
           size: 40  # percentage width of a horizontally split pane
 ```
-Globals will be applied to every tmux window, removing the need for repetition. Optionally, you can set the python interpreter to use, it defaults to python3:
+Shared will be applied to every tmux window, removing the need for repetition. Optionally, you can set the python interpreter to use, it defaults to python3:
 
 ```shell
 set-option -g @cookie_cutter_python "python3"
