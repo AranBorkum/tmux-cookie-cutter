@@ -79,6 +79,15 @@ Be sure it has PyYAML available, you can use `uv` to run it with the `pyyaml` pa
 set-option -g @cookie_cutter_python "uv run --with pyyaml"
 ```
 
+### Reloading window configuration
+
+You can reload the configuration for an individual tmux window without restarting the session.
+
+1. Focus the window you want to reload.
+2. Press `<prefix> + Ctrl-c`.
+   
+Only the active window is affected; other windows remain unchanged.
+
 ## Support
 
 If you find Tmux Cookie Cutter useful and would like to support its development, you can buy me a coffee ☕ — it’s very much appreciated!

@@ -193,3 +193,13 @@ def get_pane_base_index() -> int:
         text=True,
     ).stdout
     return int(window_base_index.split(" ")[-1])
+
+
+def get_current_tmux_window_index() -> int:
+    result = subprocess.run(
+        ["tmux", "display-message", "-p", "#I"],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    return int(result.stdout.strip())
