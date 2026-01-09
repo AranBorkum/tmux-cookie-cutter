@@ -7,16 +7,15 @@ data_objects = importlib.import_module("data_objects")
 tmux_commands = importlib.import_module("tmux_commands")
 
 
-FILE_NAME = ".tmux-cookie-cutter.yaml"
-CONFIG_PATH = Path.joinpath(Path.home(), ".config")
-
-
 def get_config_file_path() -> Path | None:
-    file_path = Path(FILE_NAME)
+    file_path = Path(constants.FILE_NAME)
     if file_path.is_file():
         return file_path
     else:
-        default_path = Path.joinpath(CONFIG_PATH, FILE_NAME)
+        default_path = Path.joinpath(
+            constants.CONFIG_PATH,
+            constants.FILE_NAME,
+        )
         if Path(default_path).is_file():
             return default_path
     return None
@@ -43,7 +42,9 @@ def generate_pane_configurations(
     return [
         data_objects.PaneConfig(
             command=pane_config.get("command"),
-            split_direction=constants.SplitDirection(pane_config["split_direction"]),
+            split_direction=constants.SplitDirection(
+                pane_config["split_direction"],
+            ),
             envvars=configuration.get("envvars"),
             setup_command=configuration.get("setup_command"),
             size=pane_config.get("size"),
@@ -98,20 +99,16 @@ def run_pane_configuration(
     )
     tmux_commands.set_environment_variables(
         envvars=shared_configuration.envvars,
-        index=window_index,
-        session=session,
     )
-    tmux_commands.run_setup_command(
+    tmux_commands.run_command(
         command=shared_configuration.setup_command,
         index=window_index,
         session=session,
     )
     tmux_commands.set_environment_variables(
         envvars=pane_configuration.envvars,
-        index=window_index,
-        session=session,
     )
-    tmux_commands.run_setup_command(
+    tmux_commands.run_command(
         command=pane_configuration.setup_command,
         index=window_index,
         session=session,
@@ -141,6 +138,29 @@ def run_pane_configuration(
             )
 
 
+def run_shared_window_configuration(
+    shared_configuration: data_objects.SharedValues,
+    session_name: str,
+    window_base_index: int,
+    index: int,
+    window_name: str | None,
+):
+    if window_name:
+        tmux_commands.rename_tmux_window(
+            name=window_name,
+            session=session_name,
+            index=index + window_base_index,
+        )
+    tmux_commands.set_environment_variables(
+        envvars=shared_configuration.envvars,
+    )
+    tmux_commands.run_command(
+        command=shared_configuration.setup_command,
+        index=index + window_base_index,
+        session=session_name,
+    )
+
+
 def run_configuration(
     configuration: data_objects.Config,
     shared_configuration: data_objects.SharedValues,
@@ -157,24 +177,23 @@ def run_configuration(
             index=index + window_base_index,
         )
     elif create_or_rename == constants.WindowNamingOption.create:
-        tmux_commands.create_tmux_window(name=configuration.name, session=session_name)
+        tmux_commands.create_tmux_window(
+            name=configuration.name,
+            session=session_name,
+        )
 
     tmux_commands.set_environment_variables(
         envvars=shared_configuration.envvars,
-        index=index + window_base_index,
-        session=session_name,
     )
-    tmux_commands.run_setup_command(
+    tmux_commands.run_command(
         command=shared_configuration.setup_command,
         index=index + window_base_index,
         session=session_name,
     )
     tmux_commands.set_environment_variables(
         envvars=configuration.envvars,
-        index=index + window_base_index,
-        session=session_name,
     )
-    tmux_commands.run_setup_command(
+    tmux_commands.run_command(
         command=configuration.setup_command,
         index=index + window_base_index,
         session=session_name,
