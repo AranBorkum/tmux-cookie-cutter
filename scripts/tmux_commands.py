@@ -15,7 +15,7 @@ def get_tmux_session_name() -> str:
 
 
 def create_tmux_window(name: str, session: str) -> None:
-    command = ["tmux", "new-window", "-n", name]
+    command = ["tmux", "new-window", "-n", name, "-e", "CREATED_BY=tmux-cookie-cutter"]
 
     if not session.isnumeric():
         command += ["-t", session]
@@ -27,37 +27,16 @@ def rename_tmux_window(name: str, index: int, session: str) -> None:
     subprocess.run(["tmux", "rename-window", "-t", f"{session}:{index}", name])
 
 
-def set_environment_variables(
-    envvars: list[str] | None, index: int, session: str
-) -> None:
+def set_environment_variables(envvars: list[str] | None) -> None:
     if not envvars:
         return
+
     for envvar in envvars:
+        name, value = envvar.split("=", 1)
         subprocess.run(
-            [
-                "tmux",
-                "send-keys",
-                "-t",
-                f"{session}:{index}",
-                f"export {envvar}",
-                "C-m",
-            ]
+            ["tmux", "set-environment", "-g", name, value],
+            check=True,
         )
-
-
-def run_setup_command(command: str | None, index: int, session: str) -> None:
-    if not command:
-        return
-    subprocess.run(
-        [
-            "tmux",
-            "send-keys",
-            "-t",
-            f"{session}:{index}",
-            command,
-            "C-m",
-        ]
-    )
 
 
 def run_command(command: str | None, index: int, session: str) -> None:
