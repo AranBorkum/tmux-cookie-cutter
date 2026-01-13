@@ -1,0 +1,49 @@
+name: Auto tag on PR merge (patch)
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - master
+
+jobs:
+  tag:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write # REQUIRED to push tags
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # IMPORTANT: fetch tags
+
+      - name: Get latest tag
+        id: latest_tag
+        run: |
+          git fetch --tags
+          TAG=$(git tag --sort=-v:refname | head -n 1)
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Calculate next patch version
+        id: next_tag
+        run: |
+          TAG=${{ steps.latest_tag.outputs.tag }}
+
+          if [ -z "$TAG" ]; then
+            NEW_TAG="v0.0.1"
+          else
+            VERSION=${TAG#v}
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+            PATCH=$((PATCH + 1))
+            NEW_TAG="v$MAJOR.$MINOR.$PATCH"
+          fi
+
+          echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
+
+      - name: Create and push tag
+        run: |
+          git tag ${{ steps.next_tag.outputs.new_tag }}
+          git push origin ${{ steps.next_tag.outputs.new_tag }}
