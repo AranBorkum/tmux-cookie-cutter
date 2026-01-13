@@ -98,6 +98,7 @@ def run_pane_configuration(
     )
     tmux_commands.set_environment_variables(
         envvars=shared_configuration.envvars,
+        session_name=session,
     )
     tmux_commands.run_setup_command(
         command=shared_configuration.setup_command,
@@ -106,6 +107,7 @@ def run_pane_configuration(
     )
     tmux_commands.set_environment_variables(
         envvars=pane_configuration.envvars,
+        session_name=session,
     )
     tmux_commands.run_setup_command(
         command=pane_configuration.setup_command,
@@ -157,6 +159,7 @@ def run_configuration(
 
     tmux_commands.set_environment_variables(
         envvars=shared_configuration.envvars,
+        session_name=session_name,
     )
     tmux_commands.run_setup_command(
         command=shared_configuration.setup_command,
@@ -165,6 +168,7 @@ def run_configuration(
     )
     tmux_commands.set_environment_variables(
         envvars=configuration.envvars,
+        session_name=session_name,
     )
     tmux_commands.run_setup_command(
         command=configuration.setup_command,
