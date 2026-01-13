@@ -27,21 +27,14 @@ def rename_tmux_window(name: str, index: int, session: str) -> None:
     subprocess.run(["tmux", "rename-window", "-t", f"{session}:{index}", name])
 
 
-def set_environment_variables(
-    envvars: list[str] | None, index: int, session: str
-) -> None:
+def set_environment_variables(envvars: dict[str, str] | None) -> None:
     if not envvars:
         return
-    for envvar in envvars:
+
+    for name, value in envvars.items():
         subprocess.run(
-            [
-                "tmux",
-                "send-keys",
-                "-t",
-                f"{session}:{index}",
-                f"export {envvar}",
-                "C-m",
-            ]
+            ["tmux", "set-environment", "-g", name, value],
+            check=True,
         )
 
 
