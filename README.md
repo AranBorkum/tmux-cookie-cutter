@@ -4,6 +4,14 @@ Letting you define your tmux window setup configuration, pre-run environment set
 
 ## Installation
 
+### Dependencies
+
+Tmux Cookie Cutter requires the following tools to be installed:
+
+- [`yq`](https://github.com/mikefarah/yq) (v4 or later)
+
+Ensure `yq` is available on your `PATH` before using the plugin.
+
 ### Installation with [Tmux Plugin Manager](https://github.com/tmux-plugins/tpm)
 
 Add plugin to the list of TPM plugins in `.tmux.conf`:
@@ -25,7 +33,6 @@ AranBorkum/tmux-cookie-cutter
 ```
 
 Run `tmuxedo` from the command line to fetch the plugin and source it.
-
 
 ### Manual Installation
 
@@ -80,17 +87,7 @@ default_windows:
         size: 40 # percentage width of a horizontally split pane
 ```
 
-Shared will be applied to every tmux window, removing the need for repetition. Optionally, you can set the python interpreter to use, it defaults to python3:
-
-```shell
-set-option -g @cookie_cutter_python "python3"
-```
-
-Be sure it has PyYAML available, you can use `uv` to run it with the `pyyaml` package:
-
-```shell
-set-option -g @cookie_cutter_python "uv run --with pyyaml"
-```
+Shared will be applied to every tmux window, removing the need for repetition.
 
 ### Reloading window configuration
 
@@ -98,7 +95,7 @@ You can reload the configuration for an individual tmux window without restartin
 
 1. Focus the window you want to reload.
 2. Press `<prefix> + Ctrl-c`.
-   
+
 Only the active window is affected; other windows remain unchanged.
 
 ## Support
