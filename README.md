@@ -4,7 +4,7 @@ Letting you define your tmux window setup configuration, pre-run environment set
 
 ## Installation
 
-### Installation with [Tmux Plugin Manager](https://github.com/tmux-plugins/tpm) (recommended)
+### Installation with [Tmux Plugin Manager](https://github.com/tmux-plugins/tpm)
 
 Add plugin to the list of TPM plugins in `.tmux.conf`:
 
@@ -13,6 +13,19 @@ set -g @plugin 'AranBorkum/tmux-cookie-cutter'
 ```
 
 Hit `prefix + I` to fetch the plugin and source it.
+
+### Installation with [Tmuxedo](https://github.com/AranBorkum/tmuxedo)
+
+Add plugin to the list of plugins in your `tmuxedo/plugins.conf`
+
+```shell
+...
+AranBorkum/tmux-cookie-cutter
+...
+```
+
+Run `tmuxedo` from the command line to fetch the plugin and source it.
+
 
 ### Manual Installation
 
