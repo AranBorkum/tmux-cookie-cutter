@@ -12,22 +12,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Job 1: Python Formatting with Ruff
-  ruff-format:
-    name: Ruff Format (Python)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Check Python Formatting
-        uses: astral-sh/ruff-action@v1
-        with:
-          # 'format --check' returns an error code if files would be modified,
-          # but does not actually modify them.
-          args: "format --check"
-
-  # Job 2: Bash Formatting with shfmt
   shfmt:
     name: shfmt (Bash)
     runs-on: ubuntu-latest
