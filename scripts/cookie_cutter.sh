@@ -5,6 +5,10 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/lib.sh"
 
 main() {
+	if ! command -v yq >/dev/null 2>&1; then
+		notify "Please install yq"
+	fi
+
 	local config_file
 	config_file=$(get_config_file)
 	[[ -z "$config_file" ]] && exit 0
