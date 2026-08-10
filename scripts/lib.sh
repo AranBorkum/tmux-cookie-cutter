@@ -139,3 +139,15 @@ run_window_config() {
 		fi
 	done
 }
+
+notify() {
+	local message="$1"
+
+	tmux display-popup -E \
+		-x '#{client_width}-40' \
+		-y 5 \
+		-w 40 \
+		-h 3 \
+		-b rounded \
+		"printf '%s\n' '$message'; sleep 3"
+}
